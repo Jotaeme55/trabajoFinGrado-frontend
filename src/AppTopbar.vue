@@ -1,56 +1,72 @@
 <template>
-    <div class="layout-topbar">
+    <div class="layout-topbar ">
         <div>
             <router-link to="/" class="layout-topbar-logo mr-0">
-                <span style="color:white; margin-right: 3px;">Convolucionales</span>
-                <i class="icons pi pi-moon"></i>
+                <img alt="Logo" :src="topbarImage()" />
+                <span style="color:white;">Convolucionales</span>
             </router-link>
         </div>
 
-        <ul class="layout-topbar-menu hidden lg:flex origin-top  justify-content-left">
+        <ul class="layout-topbar-menu hidden lg:flex origin-top align-items-center justify-content-left">
             <li class="mt-3 ml-8">
-                <a href="./resume.pdf" target="_self">
-                    <i class="icons pi pi-file"></i>
-                </a>
+                <router-link to="/">
+                    <h1 class="color titulo">Inicio</h1>
+                </router-link>
             </li>
             <li class="mt-3 ml-8">
-                <a href="https://www.linkedin.com/in/jos%C3%A9-tabares-rodr%C3%ADguez-5688a8206/">
-                    <i class="icons pi pi-linkedin"></i>
-                </a>
+            <router-link to="/ejercicios">
+                <h1 class="color titulo">Números </h1>
+            </router-link>
             </li>
             <li class="mt-3 ml-8">
-            <a href="https://github.com/Jotaeme55">
-                <i class="icons pi pi-github"></i>
-            </a>
+            <router-link to="/perfil">
+                <h1 class="color titulo">HombresYMujeres </h1>
+            </router-link>
             </li>
             <li class="mt-3 ml-8">
-            <a href="https://mail.google.com/mail/?view=cm&to=jmtr2000@gmail.com">
-                <i class="icons pi pi-envelope"></i>
-            </a>
+            <router-link to="/perfil">
+                <h1 class="color titulo">PerrosYGatos </h1>
+            </router-link>
             </li>
-            
+            <button class="p-link layout-topbar-button ml-8" v-if="$store.state.username" @click="toggleMenu">
+                <i class="pi pi-user"></i>
+            </button>
             <Menu ref="menu" :model="overlayMenuItems" :popup="true"/>
             
+
+            <Dialog header="Confirmación" v-model:visible="displayConfirmation" :style="{width: '350px'}" :modal="true">
+                <div class="flex align-items-center justify-content-center">
+                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                    <span>¿Seguro que quiere salir?</span>
+                </div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text p-button-info" autofocus style="background-color:#1da750; color:white;"/>
+                    <Button label="Si" icon="pi pi-check" @click="logout" class="p-button-text p-button-info" style="background-color:#1da750;color:white;"/>
+                </template>
+            </Dialog>
         </ul>
         <div>
+            <button class="p-link layout-topbar-menu-button layout-topbar-button mr-3" id="btUsuario" v-if="$store.state.username" @click="toggleMenu">
+                <i class="pi pi-user"></i>
+            </button>
             <button class="p-link layout-topbar-menu-button layout-topbar-button" @click="visibleLeft=true">
                 <i class="pi pi-ellipsis-v"></i>
             </button>
         </div>
     
-        <Sidebar v-model:visible="visibleLeft" :baseZIndex="1000">
+        <Sidebar v-model:visible="visibleLeft" :baseZIndex="1000" >
             <div style="display:block; align-items: center;">
                 <a href="./resume.pdf" target="_self">
-                    <i class="iconssidebar pi pi-file"></i> &nbsp;
+                    <h1 class="color tituloSidebar">Inicio </h1>
                 </a>
                 <a href="https://www.linkedin.com/in/jos%C3%A9-tabares-rodr%C3%ADguez-5688a8206/">
-                    <i class="iconssidebar pi pi-linkedin"></i> &nbsp;
+                    <h1 class="color tituloSidebar">Números </h1>
                 </a>
                 <a href="https://github.com/Jotaeme55">
-                    <i class="iconssidebar pi pi-github"></i>
+                    <h1 class="color tituloSidebar">HombresYMujeres </h1>
                 </a>
                 <a href="https://mail.google.com/mail/?view=cm&to=jmtr2000@gmail.com">
-                    <i class="iconssidebar pi pi-envelope"></i>
+                    <h1 class="color tituloSidebar">PerrosYGatos </h1>
                 </a>
             </div>
         </Sidebar>
@@ -78,7 +94,7 @@ export default {
     },
     methods: {
         topbarImage() {
-            return '/images/Logo_ISPP.png';
+            return '/images/logo.png';
         },   
         toggleMenu(event) {
             this.$refs.menu.toggle(event);
@@ -89,6 +105,19 @@ export default {
         closeConfirmation() {
             this.displayConfirmation = false;
         },
+        logout() {
+            this.closeConfirmation()
+            this.$store.dispatch("saveUsername", '');
+            this.$store.dispatch("savePassword", '');
+            this.$store.dispatch("saveUserId", '');
+            this.$store.dispatch("logOut");
+            this.axios.post('/auth/logout')
+            .catch((err) => {
+                console.log("Error: ", err);
+            });
+            this.$router.push("/login");
+            this.$toast.add({severity:'success', summary: 'Successful', detail: 'Cierre de sesión correcto', life: 3000});
+        }
     },
     computed: {
         darkTheme() {
@@ -99,6 +128,12 @@ export default {
 }
 </script>
 <style>
+
+    .tituloSidebar{
+        font-size: x-large;
+    }
+
+
     .iconssidebar{
         margin-left: 20%;
         margin-top: 30px;
@@ -128,7 +163,7 @@ export default {
         line-height: 2;
     }
     .color:hover {
-        color: #11012E;
+        color: gray;
     }
     span.color{
         transition: 0.5s;

@@ -22,45 +22,37 @@ export default {
         }
     },
     async created() {
-                let model = await tf.loadLayersModel("../data/detectorHombresMujeres/model.json");
+        console.log("hola")
+        let model = await tf.loadLayersModel("../data/detectorHombresMujeres/model.json");
 
 
-                const hombre = document.getElementById('hombreNonVisible');
-                var arrayOfPixels = tf.browser.fromPixels(hombre,4).dataSync()
-                var arr100 = [] 
-                var arrRes = []
-                for( var pixel = 0; pixel <= arrayOfPixels.length ; pixel += 4){
-                    var red = arrayOfPixels[pixel]/255
-                    var green = arrayOfPixels[pixel+1]/255 
-                    var blue = arrayOfPixels[pixel+2]/255
-                    var gray = [(red+green+blue)/3];
-                    arr100.push(gray)
-                    if(arr100.length == 100){
-                        arrRes.push(arr100)
-                        arr100=[]
-                    }
+        const hombre = document.getElementById('hombreNonVisible');
+        var arrayOfPixels = tf.browser.fromPixels(hombre,4).dataSync()
+        var arr100 = [] 
+        var arrRes = []
+        for( var pixel = 0; pixel <= arrayOfPixels.length ; pixel += 4){
+            var red = arrayOfPixels[pixel]/255
+            var green = arrayOfPixels[pixel+1]/255 
+            var blue = arrayOfPixels[pixel+2]/255
+            var gray = [(red+green+blue)/3];
+            arr100.push(gray)
+            if(arr100.length == 100){
+                arrRes.push(arr100)
+                arr100=[]
+            }
 
-                }
-                var tensor = tf.tensor4d([arrRes]);
-                var resultado = model.predict(tensor).dataSync();
-                if(resultado[0]>0.5){
-                    this.res_hombres="hombre"
-                }else{
-                    this.res_hombres="mujer"
-                }
+        }
+        var tensor = tf.tensor4d([arrRes]);
+        var resultado = model.predict(tensor).dataSync();
+        if(resultado[0]>0.5){
+            this.res_hombres="hombre"
+        }else{
+            this.res_hombres="mujer"
+        }
 
-                /* tf.LRNGrad */
+        /* tf.LRNGrad */
 
-                
-                let modelInput = model.inputs
-                let lastConvLayerOutput = model.getLayer("conv2d_8").output
 
-                let submodel = tf.model({inputs:modelInput,outputs:lastConvLayerOutput})
-                
-                const inputNuevo = tf.input({shape: lastConvLayerOutput.shape.slice(1)});
-
-                console.log(submodel)
-                console.log(inputNuevo)
 	},
 	mounted() {
         
