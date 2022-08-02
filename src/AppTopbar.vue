@@ -14,17 +14,17 @@
                 </router-link>
             </li>
             <li class="mt-3 ml-8">
-            <router-link to="/ejercicios">
+            <router-link to="/numeros">
                 <h1 class="color titulo">Números </h1>
             </router-link>
             </li>
             <li class="mt-3 ml-8">
-            <router-link to="/perfil">
+            <router-link to="/hombresymujeres">
                 <h1 class="color titulo">HombresYMujeres </h1>
             </router-link>
             </li>
             <li class="mt-3 ml-8">
-            <router-link to="/perfil">
+            <router-link to="/perrosygatos">
                 <h1 class="color titulo">PerrosYGatos </h1>
             </router-link>
             </li>
@@ -56,18 +56,18 @@
     
         <Sidebar v-model:visible="visibleLeft" :baseZIndex="1000" >
             <div style="display:block; align-items: center;">
-                <a href="./resume.pdf" target="_self">
+                <router-link to="/">
                     <h1 class="color tituloSidebar">Inicio </h1>
-                </a>
-                <a href="https://www.linkedin.com/in/jos%C3%A9-tabares-rodr%C3%ADguez-5688a8206/">
+                </router-link>
+                <router-link to="/numeros">
                     <h1 class="color tituloSidebar">Números </h1>
-                </a>
-                <a href="https://github.com/Jotaeme55">
+                </router-link>
+                <router-link to="/hombresymujeres">
                     <h1 class="color tituloSidebar">HombresYMujeres </h1>
-                </a>
-                <a href="https://mail.google.com/mail/?view=cm&to=jmtr2000@gmail.com">
+                </router-link>
+                <router-link to="/perrosygatos">
                     <h1 class="color tituloSidebar">PerrosYGatos </h1>
-                </a>
+                </router-link>
             </div>
         </Sidebar>
     </div>  

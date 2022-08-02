@@ -44,6 +44,7 @@ export default {
         }
         var tensor = tf.tensor4d([arrRes]);
         var resultado = model.predict(tensor).dataSync();
+
         if(resultado[0]>0.5){
             this.res_hombres="hombre"
         }else{

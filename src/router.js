@@ -4,12 +4,31 @@ import mySkills from './components/mySkills.vue';
 import Login from './components/Login.vue';
 import store from "./store";
 import register from "./components/Register.vue";
+import perrosygatos from "./components/perrosYGatos.vue";
+import numeros from "./components/numeros.vue";
+import hombresymujeres from "./components/hombresYMujeres.vue"
 const routes = [
     {
         path: '/',
         name: 'dashboard',
         component: Dashboard,
-    },{
+    },
+    {
+        path: '/numeros',
+        name: 'numeros',
+        component: numeros,
+    },
+    {
+        path: '/hombresymujeres',
+        name: 'hombresymujeres',
+        component: hombresymujeres,
+    },
+    {
+        path: '/perrosygatos',
+        name: 'perrosygatos',
+        component: perrosygatos,
+    },
+    {
         path: '/login',
         name: 'login',
         component: Login
