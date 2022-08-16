@@ -80,12 +80,14 @@
         <Dialog id="dialogimg"  v-model:visible="displayDialogImagen" :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '50vw', height:'70v'}">
             <h1 style="text-align:center">{{imagen.name.split(".")[0]}}</h1>
             <div style="display:flex ; justify-content:center ; text-align:center">
-                <div class="portrait">
-                    <img id="preview" :src="imagen.image"> 
+                <div class="portrait" style="position:relative">
+                    <img id="resolution" :src="imagen.image" style="display:none">
+                    <img class="overlayImage" id="preview" :src="imagen.image"> 
+                    <canvas class="overlayImage2" style=" width:100%; height:100%" id="mycanvas"></canvas>
                     <img id="preview100px" :src="imagen.image" style="width:100px; height:100px; visibility:hidden "> 
                 </div>
             </div>
-            <div class="prediccion">
+            <div class="prediccion" style="display:grid; justify-content:center;text-align: center">
                 <Button label="Predecir"  @click="predecir"/>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
                 <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
@@ -98,7 +100,7 @@
 import axios from 'axios'
 import imagenesService from '../service/ImagenesService';
 import * as tf from '@tensorflow/tfjs';
-
+import gradCamService from "../service/gradCamService"
 
 
 
@@ -138,6 +140,7 @@ export default {
     },
     methods: {
         async predecir(){
+
             this.prediciendo = true
             let model = await tf.loadLayersModel("../data/detectorHombresMujeres/model.json");
             const preview100px = document.getElementById('preview100px');
@@ -165,6 +168,63 @@ export default {
             }else{
                 this.prediccion = "mujer"
             }
+            this.generateGradCam(model,tensor)
+        },
+        generateGradCam(model,tensor){
+            function gradClassActivationMap(model, x) {
+                let layerIndex = model.layers.length - 1;
+                while (layerIndex >= 0) {
+                    if (model.layers[layerIndex].getClassName().startsWith('Conv')) {
+                        break;
+                    }
+                    layerIndex--;
+                    }
+                    tf.util.assert(
+                    layerIndex >= 0, `Failed to find a convolutional layer in model`);
+
+                const lastConvLayer = model.layers[layerIndex];
+                let modelInput = model.inputs
+                let lastConvLayerOutput = lastConvLayer.output
+                //let lastConvLayerOutput = model.getLayer("conv2d_8"/lastConvLayer.name).output
+
+                let submodel1 = tf.model({inputs:modelInput,outputs:lastConvLayerOutput})
+                
+                const newInput = tf.input({shape: lastConvLayerOutput.shape.slice(1)});
+                layerIndex++;
+                let y = newInput;
+                while (layerIndex < model.layers.length) {
+                    y = model.layers[layerIndex++].apply(y);
+                }
+                const subModel2 = tf.model({inputs: newInput, outputs: y});
+                return tf.tidy(() => {
+                    const convOutput2ClassOutput = (input) =>
+                        subModel2.apply(input, {training: true}).gather([0], 1);
+                    const gradFunction = tf.grad(convOutput2ClassOutput);
+                    const lastConvLayerOutputValues = submodel1.apply(x);
+                    const gradValues = gradFunction(lastConvLayerOutputValues);
+                    const pooledGradValues = tf.mean(gradValues, [0, 1, 2]);
+                    const scaledConvOutputValues =
+                        lastConvLayerOutputValues.mul(pooledGradValues);
+                    let heatMap = scaledConvOutputValues.mean(-1);
+                    heatMap = heatMap.relu();
+                    heatMap = heatMap.div(heatMap.max()).expandDims(-1);
+                    heatMap = tf.image.resizeBilinear(heatMap, [x.shape[1], x.shape[2]]);
+                    heatMap = gradCamService.aplicarHeatMap(heatMap);
+                    heatMap = heatMap.mul(2).add(x.div(255));
+                    return heatMap.div(heatMap.max());
+                });
+            }
+            var resolution = document.getElementById("resolution")
+            console.log(resolution.naturalWidth)
+            console.log(resolution.naturalHeight)
+            let Fin = gradClassActivationMap(model,tensor)
+            Fin =tf.image.resizeBilinear(Fin, [resolution.naturalHeight,resolution.naturalWidth])
+            const squeezed = tf.squeeze(Fin)
+            console.log(squeezed.shape)
+
+            const myCanvas = document.getElementById("mycanvas"); 
+            tf.browser.toPixels(squeezed, myCanvas)
+
         },
         onPage(event){
                 this.lazyParams.pagina = event.page;
@@ -237,6 +297,8 @@ export default {
 				}
 				this.fetchItems();
 			},
+
+        
     },
 	computed: {
 
@@ -264,4 +326,20 @@ export default {
         object-fit: contain;
     }
 
+    .overlayImage {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .overlayImage2 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        object-fit: contain;
+        opacity: 0.30;
+    }
+
+    .imageWrapper {
+        position: relative;
+    }
 </style>

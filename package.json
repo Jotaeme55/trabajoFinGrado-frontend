@@ -38,6 +38,7 @@
 		"dotenv": "^16.0.0",
 		"font-awesome": "^4.7.0",
 		"get-pixels": "^3.3.3",
+		"jimp": "^0.16.1",
 		"moment": "^2.29.3",
 		"node-fetch": "^2.6.1",
 		"primeflex": "^3.1.2",
