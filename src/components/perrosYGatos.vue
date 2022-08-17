@@ -80,12 +80,14 @@
         <Dialog id="dialogimg"  v-model:visible="displayDialogImagen" :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '50vw', height:'70v'}">
             <h1 style="text-align:center">{{imagen.name.split(".")[0]}}</h1>
             <div style="display:flex ; justify-content:center ; text-align:center">
-                <div class="portrait">
-                    <img id="preview" :src="imagen.image"> 
+                <div class="portrait" style="position:relative">
+                    <img id="resolution" :src="imagen.image" style="display:none">
+                    <img class="overlayImage" id="preview" :src="imagen.image"> 
+                    <canvas class="overlayImage2" style=" width:100%; height:100%" id="mycanvas"></canvas>
                     <img id="preview100px" :src="imagen.image" style="width:150px; height:150px; visibility:hidden "> 
                 </div>
             </div>
-            <div class="prediccion">
+            <div class="prediccion" style="display:grid; justify-content:center;text-align: center">
                 <Button label="Predecir"  @click="predecir"/>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
                 <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
@@ -98,7 +100,7 @@
 import axios from 'axios'
 import imagenesService from '../service/ImagenesService';
 import * as tf from '@tensorflow/tfjs';
-
+import gradCamService from "../service/gradCamService"
 
 
 
@@ -168,6 +170,57 @@ export default {
 			}else{
 				this.prediccion = "gato"
 			}
+            this.generateGradCam(model,tensor)
+        },
+         generateGradCam(model,tensor){
+            function gradClassActivationMap(model, x) {
+                let Numcapa = model.layers.length - 1;
+                while (Numcapa >= 0) {
+                    if (model.layers[Numcapa].getClassName().startsWith('Conv')) {
+                        break;
+                    }
+                    Numcapa--;}
+                const ultimaConv = model.layers[Numcapa];
+                let modeloInput = model.inputs
+                let ultimaConvOutput = ultimaConv.output
+                //let lastConvLayerOutput = model.getLayer("conv2d_8"/ultimaConv.name).output
+                let submodelo1 = tf.model({inputs:modeloInput,outputs:ultimaConvOutput})
+                const nInput = tf.input({shape: ultimaConvOutput.shape.slice(1)});
+                Numcapa++;
+                let y = nInput;
+                while (Numcapa < model.layers.length) {
+                    y = model.layers[Numcapa++].apply(y);
+                }
+                const subModelo2 = tf.model({inputs: nInput, outputs: y});
+                return tf.tidy(() => {
+                    const convOutput2ClassOutput = (input) =>
+                        subModelo2.apply(input, {training: true}).gather([0], 1);
+                    const Functiongrad = tf.grad(convOutput2ClassOutput);
+                    const ultimaConvOutputValues = submodelo1.apply(x);
+                    const gradValues = Functiongrad(ultimaConvOutputValues);
+                    const pooledGradValues = tf.mean(gradValues, [0, 1, 2]);
+                    const scaledultimaConvOutputValues =
+                        ultimaConvOutputValues.mul(pooledGradValues);
+                    let mapaCalor = scaledultimaConvOutputValues.mean(-1);
+                    mapaCalor = mapaCalor.relu();
+                    mapaCalor = mapaCalor.div(mapaCalor.max()).expandDims(-1);
+                    mapaCalor = tf.image.resizeBilinear(mapaCalor, [x.shape[1], x.shape[2]]);
+                    mapaCalor = gradCamService.aplicarHeatMap(mapaCalor);
+                    mapaCalor = mapaCalor.mul(2).add(x.div(255));
+                    return mapaCalor.div(mapaCalor.max());
+                });
+            }
+            var resolution = document.getElementById("resolution")
+            console.log(resolution.naturalWidth)
+            console.log(resolution.naturalHeight)
+            let Fin = gradClassActivationMap(model,tensor)
+            Fin =tf.image.resizeBilinear(Fin, [resolution.naturalHeight,resolution.naturalWidth])
+            const squeezed = tf.squeeze(Fin)
+            console.log(squeezed.shape)
+
+            const myCanvas = document.getElementById("mycanvas"); 
+            tf.browser.toPixels(squeezed, myCanvas)
+
         },
         onPage(event){
                 this.lazyParams.pagina = event.page;

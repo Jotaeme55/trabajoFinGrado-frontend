@@ -172,46 +172,39 @@ export default {
         },
         generateGradCam(model,tensor){
             function gradClassActivationMap(model, x) {
-                let layerIndex = model.layers.length - 1;
-                while (layerIndex >= 0) {
-                    if (model.layers[layerIndex].getClassName().startsWith('Conv')) {
+                let Numcapa = model.layers.length - 1;
+                while (Numcapa >= 0) {
+                    if (model.layers[Numcapa].getClassName().startsWith('Conv')) {
                         break;
                     }
-                    layerIndex--;
-                    }
-                    tf.util.assert(
-                    layerIndex >= 0, `Failed to find a convolutional layer in model`);
-
-                const lastConvLayer = model.layers[layerIndex];
-                let modelInput = model.inputs
-                let lastConvLayerOutput = lastConvLayer.output
-                //let lastConvLayerOutput = model.getLayer("conv2d_8"/lastConvLayer.name).output
-
-                let submodel1 = tf.model({inputs:modelInput,outputs:lastConvLayerOutput})
-                
-                const newInput = tf.input({shape: lastConvLayerOutput.shape.slice(1)});
-                layerIndex++;
-                let y = newInput;
-                while (layerIndex < model.layers.length) {
-                    y = model.layers[layerIndex++].apply(y);
-                }
-                const subModel2 = tf.model({inputs: newInput, outputs: y});
+                    Numcapa--;}
+                const ultimaConv = model.layers[Numcapa];
+                let modeloInput = model.inputs
+                let ultimaConvOutput = ultimaConv.output
+                //let lastConvLayerOutput = model.getLayer("conv2d_8"/ultimaConv.name).output
+                let submodelo1 = tf.model({inputs:modeloInput,outputs:ultimaConvOutput})
+                const nInput = tf.input({shape: ultimaConvOutput.shape.slice(1)});
+                Numcapa++;
+                let y = nInput;
+                while (Numcapa < model.layers.length) {
+                    y = model.layers[Numcapa++].apply(y);}
+                const subModelo2 = tf.model({inputs: nInput, outputs: y});
                 return tf.tidy(() => {
                     const convOutput2ClassOutput = (input) =>
-                        subModel2.apply(input, {training: true}).gather([0], 1);
-                    const gradFunction = tf.grad(convOutput2ClassOutput);
-                    const lastConvLayerOutputValues = submodel1.apply(x);
-                    const gradValues = gradFunction(lastConvLayerOutputValues);
+                        subModelo2.apply(input, {training: true}).gather([0], 1);
+                    const Functiongrad = tf.grad(convOutput2ClassOutput);
+                    const ultimaConvOutputValues = submodelo1.apply(x);
+                    const gradValues = Functiongrad(ultimaConvOutputValues);
                     const pooledGradValues = tf.mean(gradValues, [0, 1, 2]);
-                    const scaledConvOutputValues =
-                        lastConvLayerOutputValues.mul(pooledGradValues);
-                    let heatMap = scaledConvOutputValues.mean(-1);
-                    heatMap = heatMap.relu();
-                    heatMap = heatMap.div(heatMap.max()).expandDims(-1);
-                    heatMap = tf.image.resizeBilinear(heatMap, [x.shape[1], x.shape[2]]);
-                    heatMap = gradCamService.aplicarHeatMap(heatMap);
-                    heatMap = heatMap.mul(2).add(x.div(255));
-                    return heatMap.div(heatMap.max());
+                    const scaledultimaConvOutputValues =
+                        ultimaConvOutputValues.mul(pooledGradValues);
+                    let mapaCalor = scaledultimaConvOutputValues.mean(-1);
+                    mapaCalor = mapaCalor.relu();
+                    mapaCalor = mapaCalor.div(mapaCalor.max()).expandDims(-1);
+                    mapaCalor = tf.image.resizeBilinear(mapaCalor, [x.shape[1], x.shape[2]]);
+                    mapaCalor = gradCamService.aplicarHeatMap(mapaCalor);
+                    mapaCalor = mapaCalor.mul(2).add(x.div(255));
+                    return mapaCalor.div(mapaCalor.max());
                 });
             }
             var resolution = document.getElementById("resolution")
