@@ -220,6 +220,7 @@ export default {
 
             const myCanvas = document.getElementById("mycanvas"); 
             tf.browser.toPixels(squeezed, myCanvas)
+            myCanvas.style.visibility="visible"
 
         },
         onPage(event){
@@ -231,6 +232,8 @@ export default {
             this.prediccion = null
             this.imagen = imagen
             this.displayDialogImagen = true
+            let mycanvas = document.getElementById("mycanvas")
+            mycanvas.style.visibility="hidden"
         },
 
         //parte de funcionalidad de guardar tu propia imagen
