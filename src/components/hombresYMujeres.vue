@@ -83,7 +83,7 @@
                 <div class="portrait" style="position:relative">
                     <img id="resolution" :src="imagen.image" style="display:none">
                     <img class="overlayImage" id="preview" :src="imagen.image"> 
-                    <canvas class="overlayImage2" style=" width:100%; height:100%" id="mycanvas"></canvas>
+                    <canvas class="overlayImage2" style=" width:100%; height:100%" :style="sliderOpacity" id="mycanvas"></canvas>
                     <img id="preview100px" :src="imagen.image" style="width:100px; height:100px; visibility:hidden "> 
                 </div>
             </div>
@@ -91,6 +91,8 @@
                 <Button label="Predecir"  @click="predecir"/>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
                 <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
+                <Slider v-model="opacity" :step="0.05" :min="0" :max="1" style=" margin-top: 20px" />
+                 {{opacity}}
             </div>
         </Dialog>
     </div>
@@ -113,6 +115,7 @@ export default {
             totalRecords :null,
             dataviewValue : null,
             lazyParams:null,
+            opacity: 0.30,
             imagen:null,
             displayDialogImagen:null,
             layout: 'grid',
@@ -295,6 +298,9 @@ export default {
         
     },
 	computed: {
+        sliderOpacity: function () {
+            return { opacity: this.opacity };
+        }
 
 	},
     components: {
