@@ -3,7 +3,7 @@
 	<div class="grid justify-content-center">
 		<div class="col-6">
             <div id="retrato" class="retrato">
-                <img id="imageinicio" class="imageinicio" src="images/mujer.png" alt="este soy yo ;)">
+                <img id="imageinicio" class="imageinicio" src="images/mujer.PNG" alt="este soy yo ;)">
             </div>       
         </div>
         <div class="col-6">
