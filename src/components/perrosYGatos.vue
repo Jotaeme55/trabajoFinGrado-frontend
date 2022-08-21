@@ -1,5 +1,6 @@
 <template>
     <div>
+        <Toast/>
         <div id="linea">
             <Button label="Añadir tu propia foto" icon="pi pi-external-link" @click="openDialog" />
             <Dialog header="Añade tu propia foto" v-model:visible="displayDialog" :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '50vw'}">
@@ -9,6 +10,7 @@
                     </template>
                 </FileUpload>
                 <div style="display:flex; justify-content: center; margin-top: 20px;">
+                    <p style="color:red; font-size:large" v-if="validacionImg">El tamaño de la foto es demasiado grande</p>
                     <Button id="botonGuardar" @click="saveFile()"  label="Añadir tu propia foto" style="visibility: hidden;" />
                 </div>
             </Dialog>
@@ -89,11 +91,13 @@
                 </div>
             </div>
             <div class="prediccion" style="display:grid; justify-content:center;text-align: center">
-                <Button label="Predecir"  @click="predecir"/>
+                <div id="botones">
+                    <Button v-if="!prediccion" label="Predecir"  @click="predecir"/>
+                    <Button v-if="!prediccion" label="Borrar" style="margin-left:5px; background-color:red"  @click="borrarImagen(imagen._id)"/>
+                </div>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
                 <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
-                <Slider v-model="opacity" :step="0.05" :min="0" :max="1" style=" margin-top: 20px"/>
-                 {{opacity}}
+                <Slider v-if="prediccion" v-model="opacity" :step="0.05" :min="0" :max="1" style=" margin-top:20px; width:250px;" />
             </div>
 
         </Dialog>
@@ -130,6 +134,7 @@ export default {
 				],
             prediccion:null,
             prediciendo : false,
+            validacionImg: false
         }
     },
     created() {
@@ -177,7 +182,17 @@ export default {
 			}
             this.generateGradCam(model,tensor)
         },
-         generateGradCam(model,tensor){
+        borrarImagen(id){
+            
+            this.imagenesService.removeImg(id)
+            .then(()=>{
+                
+                this.fetchItems()
+                this.displayDialogImagen = false
+                this.$toast.add({severity:'success', summary: 'Éxito', detail:'Se ha eliminado corréctamente', life: 3000})
+            })
+        },
+        generateGradCam(model,tensor){
             function gradClassActivationMap(model, x) {
                 let Numcapa = model.layers.length - 1;
                 while (Numcapa >= 0) {
@@ -243,9 +258,11 @@ export default {
 
         //parte de funcionalidad de guardar tu propia imagen
         removeButton(){
+            this.validacionImg=false
             document.getElementById("botonGuardar").style.visibility="hidden"
         },
         openDialog() {
+            this.validacionImg=false
             this.displayDialog = true;
         },
         closeDialog() {
@@ -254,6 +271,10 @@ export default {
         onFileSelected(event) {
             document.getElementById("botonGuardar").style.visibility="visible"
             this.selectedFile = event.files[0];
+            console.log(this.selectedFile.size/1000 > 70)
+            if(this.selectedFile.size/1000 > 70){
+                this.validacionImg =true
+            }
             this.getFile().then(res => {
                 this.dataImg = res
             })
@@ -279,6 +300,9 @@ export default {
                 "tipoDeModelo" :"perrosYGatos"
             }
             axios.post("/images",imageFile)
+            .then(()=>{
+                this.$toast.add({severity:'success', summary: 'Éxito', detail:'Se ha guardado corréctamente', life: 3000})
+            })
             this.closeDialog()
             this.fetchItems()
         },

@@ -18,6 +18,13 @@ export default class ImagenesService {
         });
     }
 
+    removeImg(id){
+        return axios.delete(`/images/${id}`)
+        .catch((e)=>{
+            console.log('error' + e);
+        });
+    }
+
     getImagen(id) {
 		return axios.get(`/images/${id}`)
         .then((response) => response.data)

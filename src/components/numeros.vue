@@ -1,12 +1,13 @@
 <template>
 
     <div>
+        <Toast/>
         <div id="linea">
             <Button label="Añadir tu propia foto" icon="pi pi-external-link" @click="openDialog" />
             <Dialog header="Añade tu propia foto" v-model:visible="displayDialog" :breakpoints="{'960px': '75vw', '640px': '90vw'}" :style="{width: '50vw'}">
                 <FileUpload id="fileUpload" @select="onFileSelected" @remove="removeButton" @uploader="saveFile" accept="image/*" :fileLimit="1" :showUploadButton="false" :showCancelButton="false">
                     <template #empty>
-                        <p>Drag and drop files to here to upload.</p>
+                        <p>Suelta aquí tu imagen para guardarla.</p>
                     </template>
                 </FileUpload>
                 <div style="display:flex; justify-content: center; margin-top: 20px;">
@@ -89,10 +90,13 @@
                 </div>
             </div>
             <div class="prediccion" style="display:grid; justify-content:center;text-align: center">
-                <Button label="Predecir"  @click="predecir"/>
+                <div id="botones">
+                    <Button v-if="!prediccion" label="Predecir"  @click="predecir"/>
+                    <Button v-if="!prediccion" label="Borrar" style="margin-left:5px; background-color:red"  @click="borrarImagen(imagen._id)"/>
+                </div>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
-                <Slider v-model="opacity" :step="0.05" :min="0" :max="1" style=" margin-top: 20px"/>
-                {{opacity}}
+                <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
+                <Slider v-if="prediccion" v-model="opacity" :step="0.05" :min="0" :max="1" style=" margin-top:20px; width:250px;" />
             </div>
         </Dialog>
     </div>
@@ -126,7 +130,8 @@ export default {
 					{label: 'fechaDeGuardado - más antiguas', value: 'fechaDeGuardado'},
 					{label: 'fechaDeGuardado - más nuevas', value: '!fechaDeGuardado'},
 				],
-            prediccion:null
+            prediccion:null,
+            prediciendo : false,
         }
     },
     created() {
@@ -142,11 +147,13 @@ export default {
     },
     methods: {
         async predecir(){
+            this.prediciendo = true
             let model = await tf.loadLayersModel("../data/detectorNumeros/model.json");
             const preview100px = document.getElementById('preview100px');
             var arrayOfPixels = tf.browser.fromPixels(preview100px,4).dataSync()
             var arr100 = [] 
             var arrRes = []
+            console.log(arrayOfPixels.length)
             for( var pixel = 0; pixel <= arrayOfPixels.length ; pixel += 4){
                 var red = arrayOfPixels[pixel]/255
                 var green = arrayOfPixels[pixel+1]/255 
@@ -161,13 +168,29 @@ export default {
             }
             var tensor = tf.tensor4d([arrRes]);
             var resultado = model.predict(tensor).dataSync();
+            console.log(resultado)
             //codigo concreto de números
             var val = Math.max(...resultado)
             let res = resultado.indexOf(val)
-            this.prediccion = res
+            if(res == 0){
+                this.prediccion="0"
+            }else{
+                this.prediccion = res
+            }
+            
             this.generateGradCam(model,tensor)
         },
-         generateGradCam(model,tensor){
+        borrarImagen(id){
+            
+            this.imagenesService.removeImg(id)
+            .then(()=>{
+                
+                this.fetchItems()
+                this.displayDialogImagen = false
+                this.$toast.add({severity:'success', summary: 'Éxito', detail:'Se ha eliminado corréctamente', life: 3000})
+            })
+        },
+        generateGradCam(model,tensor){
             function gradClassActivationMap(model, x) {
                 let Numcapa = model.layers.length - 1;
                 while (Numcapa >= 0) {
@@ -222,6 +245,8 @@ export default {
                 this.fetchItems();	
             },
         detallesImagen(imagen){
+            this.prediciendo = false
+            this.prediccion = null
             this.imagen = imagen
             this.displayDialogImagen = true
             let mycanvas = document.getElementById("mycanvas")
@@ -266,10 +291,13 @@ export default {
                 "tipoDeModelo" :"numeros"
             }
             axios.post("/images",imageFile)
+            .then(()=>{
+                this.$toast.add({severity:'success', summary: 'Éxito', detail:'Se ha guardado corréctamente', life: 3000})
+            })
             this.closeDialog()
             this.fetchItems()
         },
-        //parte funcionalidad de coger todas las fotos de una persona
+
         fetchItems() {
             this.imagenesService.getImagenesFromUser(this.lazyParams,document.getElementById('BuscadorImagenes').value, this.$store.state.username,"numeros")
             .then(data => {
