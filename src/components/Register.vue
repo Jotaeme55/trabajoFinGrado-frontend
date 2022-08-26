@@ -3,7 +3,7 @@
 		<div class="col-12">
 			<div class="card" style="background-color: #b6ccde;">
 				<div class="text-align-center" style="text-align:center">
-				<h3 style="color:#18042c; font-size:2.5rem; font-family: 'Oswald', sans-serif;">Registro</h3>
+				<h3 style="font-size:2rem; color:#18042c; font-family: 'Montserrat';">Registro</h3>
 				<br>
 				</div>
 				<div class="p-fluid formgrid grid">

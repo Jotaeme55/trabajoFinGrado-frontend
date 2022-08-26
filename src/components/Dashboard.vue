@@ -1,31 +1,29 @@
 <template>
     
-	<div class="grid justify-content-center">
-		<div class="col-6">
+	<div class="inicioDashboard grid justify-content-center">
+		<div class="columna col-6">
             <div id="retrato" class="retrato">
-                <img id="imageinicio" class="imageinicio" src="images/mujer.PNG" alt="este soy yo ;)">
+                <img v-if="windowWidth > 700" id="imageinicio" class="imageinicio" src="images/inicio.jpeg" alt="este soy yo ;)">
+                <img v-if="windowWidth <= 700" id="imageinicio" class="imageinicio" src="images/iniciorecortado.jpeg" alt="este soy yo ;)">
             </div>       
         </div>
-        <div class="col-6">
-            <Card style="  text-align: center;">
-                <template #title>
-                    <h1 style="4rem">Bienvenido a Convolucionales Explicables</h1>
-                </template>
-                <template #content>
-                    <p style="font-family:cursive; font-size: x-large;">
-                        Esta se trata de una web donde dispondrás de diferentes modelos creados mediante redes neuronales convolucionales y podrás
-                        publicar tus propias imágenes para predecir si se trata de un número y el número concreto, si se trata de un hombre o una 
-                        mujer o un diferenciar entre un perro y un gato.
+        <div class="columna col2 col-6">
+            <div id="cardInicio" style="  text-align: left;">
+                    <h1 style="color:black">Convolucionales Explicables</h1>
+                    <p id="content" style="font-family:Montserrat; font-size: x-large; color:black">
+                        En esta web dispondrás de diferentes modelos 
+                        creados mediante redes neuronales convolucionales.
                         <br>
                         <br>
-                        Lo interesante es que podrás observar mediante un método que se ha estudiado el por qué la inteligencia 
-                        artificial predice lo mencionado.
+                        Podrás publicar tus propias imágenes para predecir si se trata de un número y cual es, si la imágen es de un hombre o una mujer e incluso puede diferenciar entre un perro y un gato.
                         <br>
                         <br>
-                        ¡Diviértete!
+                        Lo interesante es obsevar mediante un modelo de Inteligencia Artificial como predice lo mencionado.
+                        <br>
+                        <br>
+                        ¡Disfruta!
                     </p>
-                </template>
-            </Card>
+            </div>
         </div>
 	</div>
 
@@ -35,10 +33,11 @@
 </template>
 
 <script>
-
+console.log(window.innerWidth)
 export default {
 	data() {
         return {
+            windowWidth: window.innerWidth
         }
     },
     async created() {
@@ -46,7 +45,9 @@ export default {
 
 	},
 	mounted() {
-        
+        window.onresize = () => {
+            this.windowWidth = window.innerWidth
+        }
     },
     methods: {
 
@@ -59,13 +60,39 @@ export default {
 }
 </script>
 <style>
+    @media(max-width: 700px) {
+        .inicioDashboard{
+            display:block !important;
+        }
+        .columna{
+            width:100% !important;
+        }
+        .col2{
+            margin-top:0px !important;
+        }
+        #cardInicio{
+            text-align:center !important;
+        }
+        #content{
+            padding-right:0px !important;
+        }
+    }  
+    
+    .col2{
+        margin-top:120px;
+    }
+
     .retrato{
         display: flex;
         justify-content: center;
     }
 
     .imageinicio{
-        width:100%
+        width:56vh
+    }
+
+    #content{
+        padding-right:200px;
     }
 
 </style>

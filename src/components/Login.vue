@@ -9,17 +9,17 @@
                 <div class="h-full w-full m-0 py-7 px-4" :style="'border-radius:53px; background: #b6ccde'">
                     <div class="text-center mb-5">
                         <img :src="topbarImage()" alt="Logo" class="mb-3" width="100">
-                        <div class=" font-medium mb-3" style="font-size:3rem; color:#18042c; font-family: 'Oswald', sans-serif;">¡Bienvenido a Convolucionales!</div>
-                        <span class="text-900 font-medium">Inicia sesión para continuar</span>
+                        <div class=" font-medium mb-3" style="font-size:2rem; color:#18042c; font-family: 'Montserrat';">¡Bienvenido a Convolucionales!</div>
+                        <span class="text-900 font-medium" style="font-size:medium; color:#18042c; font-family: 'Montserrat';">Inicia sesión para continuar</span>
                     </div>
                 
                     <div class="w-full md:w-10 mx-auto">
-                        <label for="usernameId" class="block text-900 text-xl font-medium mb-2">Nombre de usuario</label>
+                        <label for="usernameId" class="block text-900 text-xl mb-2" style="font-size:1.2rem; color:#18042c; font-family: 'Montserrat';">Nombre de usuario</label>
                         <InputText v-model="username" name="username" id="usernameId" @keypress.enter="signIn()"
                         :class="{'p-invalid': submitted && error.field === 'username'} + '; w-full mb-2'" placeholder="Nombre de usuario" style="padding:1rem;" />
                         <small class="p-error" v-if="submitted && error.field === 'username'" :key="error.message">{{error.message}}</small>
                 
-                        <label for="passwordId" class="block text-900 font-medium text-xl mt-2 mb-2" >Contraseña</label>
+                        <label for="passwordId" class="block text-900 text-xl mt-2 mb-2" style="font-size:1.2rem; color:#18042c; font-family: 'Montserrat';">Contraseña</label>
                         <Password v-model="password" name="password" id="passwordId" :feedback="false" @keypress.enter="signIn()" 
                         :class="{'p-invalid': submitted && error.field === 'password'}" placeholder="Contraseña" :toggleMask="true"
                         class="w-full mb-2" inputClass="w-full" inputStyle="padding:1rem" />

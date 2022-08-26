@@ -2,6 +2,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <div :class="containerClass" @click="onWrapperClick">
         <AppTopBar @menu-toggle="onMenuToggle" id="navbar" />
         <div class="layout-main-container">
@@ -21,27 +22,6 @@
 <script>
 import AppTopBar from './AppTopbar.vue';
 
-
-window.onscroll = function() {
-        if (window.location.pathname === "/") {
-            if (window.scrollY >= 80) {
-                document.getElementById("navbar").style.display = "none"
-                document.getElementById("historial").className = "headerDiasNavbar"
-                document.getElementById("historialTag").classList.add("hidden")
-                document.getElementsByClassName("layout-main-container")[0].style.padding = "13rem 2rem 2rem 4rem"
-            } else {
-                document.getElementById("navbar").style.display = "flex"
-                document.getElementById("historial").className = "box shadow-7 mb-3 col-7 headerDias"
-                document.getElementById("historialTag").classList.remove("hidden")
-                document.getElementsByClassName("layout-main-container")[0].style.padding = "7rem 2rem 2rem 4rem"
-            }
-        } else {
-            document.getElementById("navbar").style.display = "flex"
-            // document.getElementById("historial").className = "box shadow-7 mb-3 col-7 headerDias"
-            // document.getElementById("historialTag").classList.remove("hidden")
-            document.getElementsByClassName("layout-main-container")[0].style.padding = "7rem 2rem 2rem 4rem"
-        }
-    };
 
 export default {
     emits: ['change-theme'],
@@ -267,7 +247,7 @@ export default {
 </script>
 <style>
     body{
-        background-color: #0E0F14;
+        background-color: #a69bd8;
     }
 </style>
 <style lang="scss">
