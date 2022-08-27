@@ -10,6 +10,7 @@
         <div class="columna col2 col-6">
             <div id="cardInicio" style="  text-align: left;">
                     <h1 style="color:black">Convolucionales Explicables</h1>
+                    <br>
                     <p id="content" style="font-family:Montserrat; font-size: x-large; color:black">
                         En esta web dispondrás de diferentes modelos 
                         creados mediante redes neuronales convolucionales.

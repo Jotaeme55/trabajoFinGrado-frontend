@@ -37,7 +37,7 @@
 					<template #list="slotProps">
 						<div class="col-12">
 							<div class="flex flex-column md:flex-row align-items-center p-3 w-full"  @click="detallesImagen(slotProps.data)">
-								<img :src="slotProps.data.image || 'https://i.imgur.com/Z8jQBw4.png'" :alt="slotProps.data.name" class="my-4 md:my-0 w-9 md:w-10rem shadow-2 mr-5 product-image" 
+								<img :src="slotProps.data.image" :alt="slotProps.data.name" class="my-4 md:my-0 w-9 md:w-10rem shadow-2 mr-5 product-image" 
 									style="width: 100%; display: block;" id="imagen-busqueda"/>
 								<div class="flex-1 text-center md:text-left">
 									<div class="font-bold text-2xl" style="color:#6366F1;">
@@ -59,7 +59,7 @@
 								<div @click="detallesImagen(slotProps.data)" class="text-align-center">
 									<div class="grid grid-nogutter alimento-busqueda">
 										<div class="col-4 text-left">
-											<img :src="slotProps.data.image ||'https://i.imgur.com/Z8jQBw4.png'" :alt="slotProps.data.name" 
+											<img :src="slotProps.data.image" :alt="slotProps.data.name" 
 													class="w-9 shadow-2 my-3 mx-0" id="imagen-busqueda"/>
 										</div>											
                                         <div class="font-bold text-4xl" style="color:#6366F1;">
