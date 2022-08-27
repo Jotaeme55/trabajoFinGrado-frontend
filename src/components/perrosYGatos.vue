@@ -46,6 +46,7 @@
                                     <div class="text-2xl mt-2" style="color:#6366F1;">
                                         Fecha de guardado: {{ new Date(slotProps.data.fechaDeGuardado)}}
                                     </div>
+                                    <br>
                                     <div class="text-2xl mt-2 " style="color:#6366F1;">
                                         Extension: {{  (slotProps.data.name).split(".")[1] }}
                                     </div>
@@ -68,6 +69,7 @@
                                         <div class="text-2xl mt-2" style="color:#6366F1;">
                                             Fecha de guardado: {{ new Date(slotProps.data.fechaDeGuardado).toString().split("GMT")[0]}}
                                         </div>
+                                        <br>
                                         <div class="text-2xl mt-2 " style="color:#6366F1;">
                                             Extension: {{  (slotProps.data.name).split(".")[1] }}
                                         </div>
@@ -93,7 +95,7 @@
             <div class="prediccion" style="display:grid; justify-content:center;text-align: center">
                 <div id="botones">
                     <Button v-if="!prediccion" label="Predecir"  @click="predecir"/>
-                    <Button v-if="!prediccion" label="Borrar" style="margin-left:5px; background-color:red"  @click="borrarImagen(imagen._id)"/>
+                    <Button v-if="!prediccion && imagen._id!='prueba'" label="Borrar" style="margin-left:5px; background-color:red"  @click="borrarImagen(imagen._id)"/>
                 </div>
                 <h1 v-if="prediccion">{{prediccion}}</h1>
                 <img v-if="this.prediccion == null && this.prediciendo == true" src="/images/loading.gif" alt="cargando" style="width:50px; height: 50px;">
