@@ -295,9 +295,10 @@ export default {
             axios.post("/images",imageFile)
             .then(()=>{
                 this.$toast.add({severity:'success', summary: 'Éxito', detail:'Se ha guardado corréctamente', life: 3000})
+                this.closeDialog()
+                this.fetchItems()
             })
-            this.closeDialog()
-            this.fetchItems()
+
         },
 
         fetchItems() {
