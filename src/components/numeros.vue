@@ -172,7 +172,6 @@ export default {
             if (grayTotal > 28*28*0.5){
                 for(let col in arrRes){
                     for ( let row in arrRes[col]){
-                        console.log(arrRes[col][row])
                         arrRes[col][row][0] = 1 - arrRes[col][row][0]
                     } 
                 }
