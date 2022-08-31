@@ -156,26 +156,29 @@ export default {
             var arr100 = [] 
             var arrRes = []
             var grayTotal = 0.
+            var arr100v2 = []
+            var arrResv2 = []
             for( var pixel = 0; pixel < arrayOfPixels.length ; pixel += 4){
                 var red = arrayOfPixels[pixel]/255
                 var green = arrayOfPixels[pixel+1]/255 
                 var blue = arrayOfPixels[pixel+2]/255
-                var gray = (red+green+blue)/3;
-                
-                grayTotal = grayTotal + gray
-                arr100.push([gray])
+                var gray = [(red+green+blue)/3];
+                var grayRacist =[1-gray];              
+                grayTotal = grayTotal + gray[0] ;
+                arr100.push(gray)
                 if(arr100.length == 28){
                     arrRes.push(arr100)
                     arr100=[]
                 }
-            }
-            if (grayTotal > 28*28*0.5){
-                for(let col in arrRes){
-                    for ( let row in arrRes[col]){
-                        arrRes[col][row][0] = 1 - arrRes[col][row][0]
-                    } 
+                arr100v2.push(grayRacist)
+                if(arr100v2.length == 28){
+                    arrResv2.push(arr100v2)
+                    arr100v2=[]
                 }
-            }    
+            }
+            if(grayTotal>28*28*0.35){
+                arrRes=arrResv2
+            }  
             var tensor = tf.tensor4d([arrRes]);
             var resultado = model.predict(tensor).dataSync();
             //codigo concreto de números
