@@ -155,22 +155,30 @@ export default {
             var arrayOfPixels = tf.browser.fromPixels(preview100px,4).dataSync()
             var arr100 = [] 
             var arrRes = []
-            console.log(arrayOfPixels.length)
-            for( var pixel = 0; pixel <= arrayOfPixels.length ; pixel += 4){
+            var grayTotal = 0.
+            for( var pixel = 0; pixel < arrayOfPixels.length ; pixel += 4){
                 var red = arrayOfPixels[pixel]/255
                 var green = arrayOfPixels[pixel+1]/255 
                 var blue = arrayOfPixels[pixel+2]/255
-                var gray = [(red+green+blue)/3];
-                arr100.push(gray)
+                var gray = (red+green+blue)/3;
+                
+                grayTotal = grayTotal + gray
+                arr100.push([gray])
                 if(arr100.length == 28){
                     arrRes.push(arr100)
                     arr100=[]
                 }
-
             }
+            if (grayTotal > 28*28*0.5){
+                for(let col in arrRes){
+                    for ( let row in arrRes[col]){
+                        console.log(arrRes[col][row])
+                        arrRes[col][row][0] = 1 - arrRes[col][row][0]
+                    } 
+                }
+            }    
             var tensor = tf.tensor4d([arrRes]);
             var resultado = model.predict(tensor).dataSync();
-            console.log(resultado)
             //codigo concreto de números
             var val = Math.max(...resultado)
             let res = resultado.indexOf(val)
@@ -231,13 +239,9 @@ export default {
                 });
             }
             var resolution = document.getElementById("resolution")
-            console.log(resolution.naturalWidth)
-            console.log(resolution.naturalHeight)
             let Fin = gradClassActivationMap(model,tensor)
             Fin =tf.image.resizeBilinear(Fin, [resolution.naturalHeight,resolution.naturalWidth])
             const squeezed = tf.squeeze(Fin)
-            console.log(squeezed.shape)
-
             const myCanvas = document.getElementById("mycanvas"); 
             tf.browser.toPixels(squeezed, myCanvas)
             myCanvas.style.visibility="visible"
